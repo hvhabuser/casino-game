@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mines Game</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8c52ff;
+            --primary-light: #9d6aff;
+            --secondary: #1c1c28;
+            --background: #0f0f18;
+            --card-bg: #1c1c28;
+            --text: #ffffff;
+            --text-muted: #a0a0b0;
+            --success: #22c55e;
+            --warning: #fbbf24;
+            --danger: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text);
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            transition: background-color 0.3s ease;
+        }
+        
+        .container {
+            position: relative;
+            max-width: 480px;
+            width: 100%;
+            padding: 30px;
+            text-align: center;
+            border-radius: 20px;
+            background: var(--card-bg);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 25px;
+            background: linear-gradient(90deg, var(--primary), #bf7dff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+        
+        .balance-section {
+            background-color: rgba(20, 20, 35, 0.7);
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 25px;
+            border: 1px solid rgba(140, 82, 255, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .balance-display {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            background: rgba(15, 15, 25, 0.5);
+            border-radius: 10px;
+        }
+        
+        .balance-label {
+            font-size: 0.9em;
+            color: var(--text-muted);
+        }
+        
+        .balance-value {
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+            text-align: left;
+            color: var(--text-muted);
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 12px 15px;
+            background-color: rgba(15, 15, 25, 0.5);
+            border: 1px solid rgba(140, 82, 255, 0.3);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(140, 82, 255, 0.2);
+        }
+        
+        .button {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 15px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        #start-game {
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            color: white;
+        }
+        
+        #start-game:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(140, 82, 255, 0.4);
+        }
+        
+        #cashout {
+            background: linear-gradient(to right, var(--warning), #fcd34d);
+            color: #1a1a2e;
+        }
+        
+        #cashout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(251, 191, 36, 0.4);
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            padding: 15px;
+            background: rgba(20, 20, 35, 0.7);
+            border-radius: 15px;
+            border: 1px solid rgba(140, 82, 255, 0.1);
+        }
+        
+        .info-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .info-label {
+            font-size: 0.8em;
+            color: var(--text-muted);
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        
+        .multiplier {
+            color: var(--primary);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .cell {
+            aspect-ratio: 1/1;
+            background: linear-gradient(145deg, #23233a, #1a1a2c);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.2), 
+                        -3px -3px 7px rgba(40, 40, 70, 0.1);
+        }
+        
+        .cell:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 14px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, #26263f, #1d1d30);
+        }
+        
+        .cell.opened {
+            background: linear-gradient(145deg, #22c55e, #16a34a);
+            transform: scale(1.05);
+            box-shadow: 0 7px 14px rgba(34, 197, 94, 0.3);
+        }
+        
+        .cell.mine {
+            background: linear-gradient(145deg, #ef4444, #dc2626);
+            transform: scale(1.05);
+            box-shadow: 0 7px 14px rgba(239, 68, 68, 0.3);
+        }
+        
+        #game-status {
+            font-size: 1.1em;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(20, 20, 35, 0.7);
+            margin-top: 15px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .status-win {
+            color: var(--success);
+        }
+        
+        .status-lose {
+            color: var(--danger);
+        }
+        
+        .hidden {
+            display: none !important;
+        }
+        
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 1s infinite;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%) scale(0.7);
+            width: auto;
+            height: auto;
+            max-width: 90%;
+            
+            background-color: rgba(28, 28, 40, 0.85);
+            backdrop-filter: blur(5px);
+            
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), visibility 0s linear 0.3s;
+            transform-origin: center center;
+        }
+
+        .modal:not(.hidden) {
+             opacity: 1;
+             visibility: visible;
+             transform: translate(-50%, -50%) scale(1);
+             transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+         }
+
+        .modal-content {
+            padding: 30px 40px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(140, 82, 255, 0.2);
+        }
+        
+        .modal-content h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            font-size: 1.8em;
+        }
+
+        .modal-content p {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+        }
+
+        .modal-content span {
+            font-weight: 600;
+        }
+
+        #close-modal-btn {
+            margin-top: 20px;
+            width: auto;
+            padding: 10px 25px;
+            background: linear-gradient(to right, var(--success), #34d399);
+        }
+
+        /* Progress Bar Styles */
+        .progress-bar-container {
+             width: 100%;
+             overflow-x: auto; /* Allows horizontal scrolling */
+             margin-bottom: 20px;
+             padding-bottom: 10px; /* Space for scrollbar if needed */
+         }
+         
+         /* Hide scrollbar visually but allow scrolling */
+         .progress-bar-container::-webkit-scrollbar {
+            display: none; /* For Chrome, Safari, and Opera */
+         }
+         .progress-bar-container {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+         }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            width: max-content; /* Ensure container expands to fit steps */
+        }
+
+        .progress-step {
+            flex: 0 0 auto; /* Prevent steps from shrinking */
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(140, 82, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            color: var(--text-muted);
+            min-width: 70px; /* Ensure minimum width for readability */
+        }
+        
+        .progress-step span {
+             display: block;
+             font-size: 1.1em;
+             font-weight: 600;
+             color: var(--text);
+             margin-bottom: 3px;
+         }
+
+        .progress-step.highlighted {
+            background-color: rgba(34, 197, 94, 0.3); /* Green highlight */
+            border-color: var(--success);
+            color: var(--text);
+        }
+        
+        .progress-step.highlighted span {
+             color: var(--success);
+         }
+
+        /* Particle Animation Styles */
+        @keyframes particle-animation {
+            0% {
+                opacity: 1;
+                transform: translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(var(--x), var(--y));
+            }
+        }
+        
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 100;
+            animation: particle-animation 0.6s forwards ease-out;
+        }
+        
+        .success-particle {
+            background: radial-gradient(circle, #22c55e, #16a34a);
+            box-shadow: 0 0 6px #22c55e;
+        }
+        
+        .explosion-particle {
+            background: radial-gradient(circle, #ef4444, #b91c1c);
+            box-shadow: 0 0 6px #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Mines Game</h1>
+        
+        <!-- Balance and Bet Section -->
+        <div class="balance-section">
+            <div class="balance-display">
+                <span class="balance-label">Balance</span>
+                <span class="balance-value"><span id="balance">1000</span> coins</span>
+            </div>
+            <div class="input-group">
+                <label for="bet-amount">Bet Amount</label>
+                <input id="bet-amount" type="number" min="10" value="10">
+            </div>
+            <div class="input-group">
+                <label for="mines-count">Number of Mines (2-24)</label>
+                <input id="mines-count" type="number" min="2" max="24" value="3">
+            </div>
+            <button id="start-game" class="button">Start Game</button>
+            <button id="cashout" class="button hidden">Cash Out</button>
+        </div>
+
+        <!-- Game Info -->
+        <div class="game-info">
+            <div class="info-item">
+                <div class="info-label">Current Multiplier</div>
+                <div class="info-value multiplier"><span id="multiplier">1.00</span>x</div>
+            </div>
+            <div class="info-item">
+                <div class="info-label">Potential Win</div>
+                <div class="info-value"><span id="potential-win">0</span> coins</div>
+            </div>
+        </div>
+
+        <!-- Coefficient Progress Bar -->
+        <div class="progress-bar-container">
+             <div id="coefficient-progress" class="progress-bar">
+                 <!-- Progress steps will be generated here by JS -->
+             </div>
+         </div>
+
+        <!-- Game Grid -->
+        <div id="game-grid" class="grid"></div>
+
+        <!-- Game Status -->
+        <div id="game-status">Ready to play? Place your bet!</div>
+
+        <!-- Win Summary Modal -->
+        <div id="win-modal" class="modal hidden">
+             <div class="modal-content">
+                 <h2>Congratulations!</h2>
+                 <p>Multiplier: <span id="modal-multiplier">1.00</span>x</p>
+                 <p>Winnings: <span id="modal-winnings">0</span> coins</p>
+                 <button id="close-modal-btn" class="button">Play Again</button>
+             </div>
+         </div>
+    </div>
+
+    <script>
+        let balance = 1000;
+        let betAmount = 10;
+        let minesCount = 3;
+        let gameActive = false;
+        let mines = [];
+        let openedCells = 0;
+        let multiplier = 1;
+
+        const gridSize = 25; // 5x5 grid
+
+        // Helper function for Factorial (using logarithms for larger numbers to avoid overflow)
+        function logFactorial(n) {
+            if (n < 0) return NaN;
+            if (n === 0) return 0;
+            let logFact = 0;
+            for (let i = 2; i <= n; i++) {
+                logFact += Math.log(i);
+            }
+            return logFact;
+        }
+
+        // Helper function for Combinations (nCr) using log factorials
+        function combinations(n, k) {
+            if (k < 0 || k > n) {
+                return 0;
+            }
+            if (k === 0 || k === n) {
+                return 1;
+            }
+            // Optimization: C(n, k) === C(n, n-k)
+            if (k > n / 2) {
+                k = n - k;
+            }
+            // Using logs: log(C(n, k)) = log(n!) - log(k!) - log((n-k)!)
+            const logResult = logFactorial(n) - logFactorial(k) - logFactorial(n - k);
+            // Convert back from log: C(n, k) = exp(logResult)
+            // Use Math.round to mitigate potential floating point inaccuracies for integer results
+            return Math.round(Math.exp(logResult)); 
+        }
+
+        // Function to calculate the multiplier dynamically
+        function calculateMultiplier(k, M, N) {
+            if (k === 0) return 1; // Multiplier is 1 before opening any cell
+            if (N - M < k) return Infinity; // Cannot open more cells than available safe ones
+
+            const totalCombinations = combinations(N, k);
+            const safeCombinations = combinations(N - M, k);
+
+            if (safeCombinations === 0) {
+                 // This case theoretically shouldn't happen if N-M >= k, but added for safety
+                 // It implies impossibility, so max multiplier or infinity might be appropriate
+                 // Let's return a very high multiplier or handle based on game rules
+                 return combinations(N, k); // Max possible multiplier if only 1 safe combo exists
+            }
+
+            const calculatedMultiplier = totalCombinations / safeCombinations;
+            
+            // Cap the multiplier at a reasonable maximum if needed, e.g., 10000x
+            // return Math.min(calculatedMultiplier, 10000); 
+            
+            // Return calculated multiplier, rounded to 2 decimal places for display later
+            // Rounding here might be too early, let's round only for display
+            return calculatedMultiplier; 
+        }
+
+        const balanceDisplay = document.getElementById('balance');
+        const betInput = document.getElementById('bet-amount');
+        const minesInput = document.getElementById('mines-count');
+        const startButton = document.getElementById('start-game');
+        const cashoutButton = document.getElementById('cashout');
+        const multiplierDisplay = document.getElementById('multiplier');
+        const potentialWinDisplay = document.getElementById('potential-win');
+        const gameGrid = document.getElementById('game-grid');
+        const gameStatus = document.getElementById('game-status');
+        const progressBar = document.getElementById('coefficient-progress');
+        const winModal = document.getElementById('win-modal');
+        const modalMultiplier = document.getElementById('modal-multiplier');
+        const modalWinnings = document.getElementById('modal-winnings');
+        const closeModalBtn = document.getElementById('close-modal-btn');
+
+        // Function to generate the coefficient progress bar
+        // Reads mines count directly from input
+        function generateProgressBar() {
+            const M = parseInt(minesInput.value) || 3; // Get current value or default
+            const N = gridSize;
+            
+            progressBar.innerHTML = ''; // Clear previous bar
+            // Validate mines count for progress bar generation
+             if (isNaN(M) || M < 2 || M > 24) {
+                 progressBar.innerHTML = '<div class="progress-step" style="color: var(--danger);">Invalid mine count (2-24)</div>';
+                 return; 
+             }
+            
+            const maxOpenable = N - M;
+            if (maxOpenable < 1) {
+                 progressBar.innerHTML = '<div class="progress-step" style="color: var(--warning);">No safe cells to open!</div>';
+                 return;
+             }
+            
+            for (let k = 1; k <= maxOpenable; k++) {
+                const stepMultiplier = calculateMultiplier(k, M, N);
+                // Stop if multiplier becomes too large or infinite
+                if (!isFinite(stepMultiplier) || stepMultiplier > 1000000) { // Add a sensible upper limit check
+                    const step = document.createElement('div');
+                    step.classList.add('progress-step');
+                     step.innerHTML = `<span>&gt;1Mx</span>${k} opens`;
+                     progressBar.appendChild(step);
+                    break; // Stop generating steps if multiplier gets extreme
+                }
+
+                const step = document.createElement('div');
+                step.classList.add('progress-step');
+                step.dataset.step = k; // Store the step number
+
+                const multiplierText = `x${stepMultiplier.toFixed(2)}`;
+                const openText = `${k} open${k > 1 ? 's' : ''}`;
+
+                step.innerHTML = `<span>${multiplierText}</span>${openText}`;
+                progressBar.appendChild(step);
+            }
+        }
+
+        // Function to update progress bar highlighting
+        function updateProgressHighlight(currentOpened) {
+            const steps = progressBar.querySelectorAll('.progress-step');
+            steps.forEach(step => {
+                if (parseInt(step.dataset.step) <= currentOpened) {
+                    step.classList.add('highlighted');
+                } else {
+                    step.classList.remove('highlighted');
+                }
+            });
+             // Scroll the highlighted step into view
+             const highlightedStep = progressBar.querySelector(`.progress-step[data-step="${currentOpened}"]`);
+             if (highlightedStep) {
+                 highlightedStep.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+             }
+        }
+        
+        // Function to show the win modal
+        function showWinModal(finalMultiplier, winnings) {
+             modalMultiplier.textContent = finalMultiplier.toFixed(2);
+             modalWinnings.textContent = winnings;
+             winModal.classList.remove('hidden');
+         }
+
+        // Function to hide the win modal
+        function hideWinModal() {
+            winModal.classList.add('hidden');
+        }
+
+        // Initialize balance
+        balanceDisplay.textContent = balance;
+        
+        // ---- Initial setup ----
+        // Generate progress bar on page load
+        generateProgressBar(); 
+
+        // ---- Event Listeners ----
+        // Update progress bar when mine count changes
+        minesInput.addEventListener('input', generateProgressBar);
+
+        // Close modal button listener
+        closeModalBtn.addEventListener('click', () => {
+            hideWinModal();
+            // Optionally reset inputs or focus bet amount here
+            betInput.focus();
+        });
+
+        // Start game
+        startButton.addEventListener('click', () => {
+            betAmount = parseInt(betInput.value);
+            minesCount = parseInt(minesInput.value);
+
+            if (isNaN(betAmount) || betAmount < 10) {
+                gameStatus.textContent = 'Minimum bet is 10 coins!';
+                gameStatus.className = 'status-lose';
+                return;
+            }
+            if (isNaN(minesCount) || minesCount < 2 || minesCount > 24) {
+                gameStatus.textContent = 'Mines must be between 2 and 24!';
+                gameStatus.className = 'status-lose';
+                return;
+            }
+            if (betAmount > balance) {
+                gameStatus.textContent = 'Insufficient balance!';
+                gameStatus.className = 'status-lose';
+                return;
+            }
+            if (gameActive) return;
+            
+            // Validate coefficients calculation for the current mine count
+            try {
+                // Test calculation with 1 open cell to verify coefficients are working
+                const testCoef = calculateMultiplier(1, minesCount, gridSize);
+                if (isNaN(testCoef) || !isFinite(testCoef) || testCoef <= 0) {
+                    gameStatus.textContent = 'Invalid coefficient calculation. Try different mine count.';
+                    gameStatus.className = 'status-lose';
+                    return;
+                }
+            } catch (e) {
+                gameStatus.textContent = 'Error calculating coefficients. Try different mine count.';
+                gameStatus.className = 'status-lose';
+                return;
+            }
+
+            // Hide modal if it was open
+            hideWinModal(); 
+
+            // Deduct bet from balance
+            balance -= betAmount;
+            balanceDisplay.textContent = balance;
+            gameActive = true;
+            openedCells = 0;
+            multiplier = 1;
+            
+            // Disable bet inputs during active game
+            betInput.disabled = true;
+            minesInput.disabled = true;
+            
+            startButton.classList.add('hidden');
+            cashoutButton.disabled = true;
+            cashoutButton.classList.remove('hidden');
+            cashoutButton.classList.remove('pulse');
+            gameStatus.textContent = 'Game started! Pick a cell.';
+            gameStatus.className = '';
+            multiplierDisplay.textContent = '1.00';
+            potentialWinDisplay.textContent = (betAmount * multiplier).toFixed(0);
+
+            // Initialize mines
+            mines = [];
+            while (mines.length < minesCount) {
+                const pos = Math.floor(Math.random() * gridSize);
+                if (!mines.includes(pos)) mines.push(pos);
+            }
+
+            // Regenerate progress bar with validated mine count to ensure consistency
+            generateProgressBar();
+            
+            // Clear any highlights
+            const steps = progressBar.querySelectorAll('.progress-step.highlighted');
+            steps.forEach(step => step.classList.remove('highlighted'));
+
+            // Create grid
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleCellClick(i));
+                gameGrid.appendChild(cell);
+            }
+        });
+
+        // Handle cell click
+        function handleCellClick(index) {
+            if (!gameActive || document.querySelector(`.cell[data-index="${index}"]`).classList.contains('opened')) return;
+
+            const cell = document.querySelector(`.cell[data-index="${index}"]`);
+            // Get cell position for particles
+            const rect = cell.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            
+            if (mines.includes(index)) {
+                // Hit a mine
+                cell.classList.add('mine');
+                cell.textContent = '💣';
+                
+                // Create explosion particles - more particles (25-35) for explosion
+                createParticles(centerX, centerY, Math.floor(Math.random() * 10) + 25, false);
+                
+                gameActive = false;
+                
+                // Re-enable inputs after game ends
+                betInput.disabled = false;
+                minesInput.disabled = false;
+                
+                startButton.classList.remove('hidden');
+                cashoutButton.disabled = true;
+                cashoutButton.classList.add('hidden');
+                cashoutButton.classList.remove('pulse');
+                gameStatus.textContent = 'Game Over! You hit a mine.';
+                gameStatus.className = 'status-lose';
+                revealMines();
+            } else {
+                // Safe cell
+                cell.classList.add('opened');
+                cell.textContent = '💎';
+                
+                // Create success particles - fewer particles (12-18) for success
+                createParticles(centerX, centerY, Math.floor(Math.random() * 6) + 12, true);
+                
+                openedCells++;
+                
+                // Enable cashout button after the first safe cell is opened
+                if (openedCells === 1) {
+                    cashoutButton.disabled = false;
+                }
+                
+                // Calculate multiplier dynamically
+                multiplier = calculateMultiplier(openedCells, minesCount, gridSize);
+                
+                // Ensure multiplier is at least 1, handle potential NaN/Infinity
+                if (isNaN(multiplier) || !isFinite(multiplier) || multiplier < 1) {
+                    multiplier = 1; // Default to 1 in case of calculation issues
+                }
+                
+                multiplierDisplay.textContent = multiplier.toFixed(2);
+                
+                // Update potential win
+                const potentialWin = (betAmount * multiplier).toFixed(0);
+                potentialWinDisplay.textContent = potentialWin;
+                
+                // Update progress bar highlighting
+                updateProgressHighlight(openedCells); 
+                
+                // Animate cashout button when multiplier increases (only if enabled)
+                if (!cashoutButton.disabled) {
+                    cashoutButton.classList.add('pulse');
+                    setTimeout(() => {
+                        cashoutButton.classList.remove('pulse');
+                    }, 1000);
+                }
+                
+                gameStatus.textContent = 'Keep going or cash out!';
+                
+                // Check if all safe cells have been opened
+                if (openedCells === gridSize - minesCount) {
+                    gameStatus.textContent = 'Perfect game! All safe cells revealed!';
+                    gameStatus.className = 'status-win';
+                    cashout();
+                }
+            }
+        }
+
+        // Cash out
+        cashoutButton.addEventListener('click', cashout);
+        
+        function cashout() {
+            if (!gameActive || openedCells === 0) return;
+            
+            // Recalculate final multiplier just before cashout
+            let finalMultiplier = calculateMultiplier(openedCells, minesCount, gridSize);
+            if (isNaN(finalMultiplier) || !isFinite(finalMultiplier) || finalMultiplier < 1) {
+                finalMultiplier = 1; // Safety check
+            }
+
+            // Use the potentially unrounded multiplier for calculation
+            const winnings = Math.floor(betAmount * finalMultiplier);
+            balance += winnings;
+            balanceDisplay.textContent = balance;
+            gameActive = false;
+            
+            // Re-enable inputs after game ends
+            betInput.disabled = false;
+            minesInput.disabled = false;
+            
+            startButton.classList.remove('hidden');
+            cashoutButton.disabled = true;
+            cashoutButton.classList.add('hidden');
+            cashoutButton.classList.remove('pulse');
+            gameStatus.textContent = `You cashed out with ${winnings} coins!`;
+            gameStatus.className = 'status-win';
+            revealMines();
+            
+            // Show the win modal
+            showWinModal(finalMultiplier, winnings); 
+        }
+
+        // Reveal all mines - with staggered animations
+        function revealMines() {
+            mines.forEach((index, i) => {
+                const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                if (!cell.classList.contains('opened')) {
+                    // Stagger the reveal with a small delay
+                    setTimeout(() => {
+                        cell.classList.add('mine');
+                        cell.textContent = '💣';
+                        
+                        // Only add particles to a few mines (to avoid overwhelming effects)
+                        if (Math.random() > 0.6) { // 40% chance for extra particle effects
+                            const rect = cell.getBoundingClientRect();
+                            const centerX = rect.left + rect.width / 2;
+                            const centerY = rect.top + rect.height / 2;
+                            // Smaller explosion for secondary mines
+                            createParticles(centerX, centerY, Math.floor(Math.random() * 5) + 10, false);
+                        }
+                    }, i * 80); // Stagger by 80ms per mine
+                }
+            });
+        }
+
+        // Function to create particle explosion effect
+        function createParticles(x, y, count, isSuccess) {
+            const container = document.querySelector('.container');
+            const rect = container.getBoundingClientRect();
+            
+            // Calculate position more accurately relative to the container
+            const relativeX = x - rect.left;
+            const relativeY = y - rect.top;
+            
+            for (let i = 0; i < count; i++) {
+                const particle = document.createElement('div');
+                const size = Math.random() * 6 + 3; // Random size between 3-9px
+                
+                // Set particle properties
+                particle.className = `particle ${isSuccess ? 'success-particle' : 'explosion-particle'}`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                
+                // Position particles precisely at the center of the cell
+                particle.style.position = 'absolute';
+                particle.style.left = `${relativeX}px`;
+                particle.style.top = `${relativeY}px`;
+                
+                // Random direction and distance
+                const angle = Math.random() * 2 * Math.PI; // Random angle in radians
+                const distance = isSuccess ? Math.random() * 50 + 30 : Math.random() * 70 + 50; // Fly farther for explosions
+                
+                // Calculate destination using angle and distance
+                const destX = Math.cos(angle) * distance;
+                const destY = Math.sin(angle) * distance;
+                
+                // Set custom properties for the animation
+                particle.style.setProperty('--x', `${destX}px`);
+                particle.style.setProperty('--y', `${destY}px`);
+                
+                // Random animation duration
+                const duration = (Math.random() * 0.3 + 0.3).toFixed(2); // Between 0.3-0.6s
+                particle.style.animationDuration = `${duration}s`;
+                
+                // Add to DOM
+                container.appendChild(particle);
+                
+                // Remove after animation completes
+                setTimeout(() => {
+                    particle.remove();
+                }, parseFloat(duration) * 1000 + 50);
+            }
+        }
+    </script>
+</body>
+</html>
