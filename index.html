@@ -30,61 +30,99 @@
             background-color: var(--background);
             color: var(--text);
             font-family: 'Montserrat', sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
             margin: 0;
+            padding: 0;
             transition: background-color 0.3s ease;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
-        .container {
-            position: relative;
-            max-width: 480px;
-            width: 100%;
-            padding: 30px;
-            text-align: center;
-            border-radius: 20px;
-            background: var(--card-bg);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        .site-header {
+            background-color: var(--card-bg);
+            padding: 15px 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
         }
         
-        h1 {
-            font-size: 2.5em;
-            margin-bottom: 25px;
+        .site-title {
+            font-size: 1.8em;
+            font-weight: 700;
             background: linear-gradient(90deg, var(--primary), #bf7dff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 700;
+        }
+        
+        .header-balance {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 15, 25, 0.5);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(140, 82, 255, 0.1);
+        }
+        
+        .header-balance .balance-label {
+             font-size: 0.9em;
+             color: var(--text-muted);
+             margin-right: 8px;
+         }
+        
+        .header-balance .balance-value {
+             font-size: 1.1em;
+             font-weight: 600;
+             color: var(--text);
+         }
+        
+        .container {
+            position: relative;
+            width: 100%;
+            padding: 30px;
+            margin: 0 auto;
+            max-width: 1200px;
+            display: flex;
+            gap: 30px;
+            flex-grow: 1;
+        }
+        
+        .game-controls {
+            flex: 0 0 300px;
+            max-width: 350px;
+            background-color: var(--card-bg);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .game-area {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        h1 {
+            display: none;
         }
         
         .balance-section {
             background-color: rgba(20, 20, 35, 0.7);
             padding: 20px;
             border-radius: 15px;
-            margin-bottom: 25px;
             border: 1px solid rgba(140, 82, 255, 0.1);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            flex-shrink: 0;
         }
         
         .balance-display {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            padding: 10px 15px;
-            background: rgba(15, 15, 25, 0.5);
-            border-radius: 10px;
-        }
-        
-        .balance-label {
-            font-size: 0.9em;
-            color: var(--text-muted);
-        }
-        
-        .balance-value {
-            font-size: 1.3em;
-            font-weight: 600;
+            display: none;
         }
         
         .input-group {
@@ -155,11 +193,11 @@
         .game-info {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 25px;
             padding: 15px;
             background: rgba(20, 20, 35, 0.7);
             border-radius: 15px;
             border: 1px solid rgba(140, 82, 255, 0.1);
+            flex-shrink: 0;
         }
         
         .info-item {
@@ -182,11 +220,60 @@
             color: var(--primary);
         }
         
+        .progress-bar-container {
+             width: 100%;
+             overflow-x: auto;
+             padding-bottom: 10px;
+             flex-shrink: 0;
+             scroll-behavior: smooth;
+         }
+         
+         .progress-bar-container::-webkit-scrollbar { display: none; }
+         .progress-bar-container { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .progress-bar {
+            display: flex;
+            gap: 8px;
+            width: max-content;
+        }
+
+        .progress-step {
+            flex: 0 0 auto;
+            padding: 8px 12px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(140, 82, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            font-size: 0.8em;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            color: var(--text-muted);
+            min-width: 70px;
+        }
+        
+        .progress-step span {
+             display: block;
+             font-size: 1.1em;
+             font-weight: 600;
+             color: var(--text);
+             margin-bottom: 3px;
+         }
+
+        .progress-step.highlighted {
+            background-color: rgba(34, 197, 94, 0.3);
+            border-color: var(--success);
+            color: var(--text);
+        }
+        
+        .progress-step.highlighted span {
+             color: var(--success);
+         }
+
         .grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
-            margin-bottom: 25px;
+            width: 100%;
+            max-width: 500px;
         }
         
         .cell {
@@ -226,9 +313,11 @@
             padding: 15px;
             border-radius: 10px;
             background: rgba(20, 20, 35, 0.7);
-            margin-top: 15px;
             font-weight: 500;
             transition: all 0.3s ease;
+            text-align: center;
+            width: 100%;
+             max-width: 500px;
         }
         
         .status-win {
@@ -311,60 +400,6 @@
             background: linear-gradient(to right, var(--success), #34d399);
         }
 
-        /* Progress Bar Styles */
-        .progress-bar-container {
-             width: 100%;
-             overflow-x: auto; /* Allows horizontal scrolling */
-             margin-bottom: 20px;
-             padding-bottom: 10px; /* Space for scrollbar if needed */
-         }
-         
-         /* Hide scrollbar visually but allow scrolling */
-         .progress-bar-container::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-         }
-         .progress-bar-container {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-         }
-
-        .progress-bar {
-            display: flex;
-            gap: 8px;
-            width: max-content; /* Ensure container expands to fit steps */
-        }
-
-        .progress-step {
-            flex: 0 0 auto; /* Prevent steps from shrinking */
-            padding: 8px 12px;
-            background-color: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(140, 82, 255, 0.1);
-            border-radius: 8px;
-            text-align: center;
-            font-size: 0.8em;
-            transition: background-color 0.3s ease, color 0.3s ease;
-            color: var(--text-muted);
-            min-width: 70px; /* Ensure minimum width for readability */
-        }
-        
-        .progress-step span {
-             display: block;
-             font-size: 1.1em;
-             font-weight: 600;
-             color: var(--text);
-             margin-bottom: 3px;
-         }
-
-        .progress-step.highlighted {
-            background-color: rgba(34, 197, 94, 0.3); /* Green highlight */
-            border-color: var(--success);
-            color: var(--text);
-        }
-        
-        .progress-step.highlighted span {
-             color: var(--success);
-         }
-
         /* Particle Animation Styles */
         @keyframes particle-animation {
             0% {
@@ -394,56 +429,127 @@
             background: radial-gradient(circle, #ef4444, #b91c1c);
             box-shadow: 0 0 6px #ef4444;
         }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column-reverse;
+                padding: 20px;
+                gap: 20px;
+            }
+
+            .site-header {
+                padding: 12px 20px;
+            }
+            
+            .game-controls {
+                flex: none;
+                width: 100%;
+                max-width: none;
+            }
+            
+            .game-area {
+                width: 100%;
+            }
+
+            .grid {
+                max-width: none;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 8px;
+            }
+
+            .cell {
+                font-size: 1.2em;
+            }
+
+            #game-status {
+                font-size: 1em;
+                padding: 12px;
+            }
+            
+            .progress-bar-container {
+                overflow-x: auto;
+                padding-bottom: 5px;
+                scroll-behavior: smooth;
+            }
+            
+            .progress-step {
+                min-width: 65px;
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .site-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            
+            .header-balance {
+                justify-content: center;
+            }
+            
+            .grid {
+                grid-template-columns: repeat(5, 1fr);
+                gap: 6px;
+            }
+            
+            .cell {
+                font-size: 1em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Mines Game</h1>
-        
-        <!-- Balance and Bet Section -->
-        <div class="balance-section">
-            <div class="balance-display">
-                <span class="balance-label">Balance</span>
-                <span class="balance-value"><span id="balance">1000</span> coins</span>
-            </div>
-            <div class="input-group">
-                <label for="bet-amount">Bet Amount</label>
-                <input id="bet-amount" type="number" min="10" value="10">
-            </div>
-            <div class="input-group">
-                <label for="mines-count">Number of Mines (2-24)</label>
-                <input id="mines-count" type="number" min="2" max="24" value="3">
-            </div>
-            <button id="start-game" class="button">Start Game</button>
-            <button id="cashout" class="button hidden">Cash Out</button>
+    <header class="site-header">
+        <div class="site-title">Mines Game</div>
+        <div class="header-balance">
+            <span class="balance-label">Balance:</span>
+            <span class="balance-value"><span id="balance">1000</span> coins</span>
         </div>
+    </header>
 
-        <!-- Game Info -->
-        <div class="game-info">
-            <div class="info-item">
-                <div class="info-label">Current Multiplier</div>
-                <div class="info-value multiplier"><span id="multiplier">1.00</span>x</div>
+    <main class="container">
+        <div class="game-controls">
+            <div class="balance-section">
+                <div class="input-group">
+                    <label for="bet-amount">Bet Amount</label>
+                    <input id="bet-amount" type="number" min="10" value="10">
+                </div>
+                <div class="input-group">
+                    <label for="mines-count">Number of Mines (2-24)</label>
+                    <input id="mines-count" type="number" min="2" max="24" value="3">
+                </div>
+                <button id="start-game" class="button">Start Game</button>
+                <button id="cashout" class="button hidden">Cash Out</button>
             </div>
-            <div class="info-item">
-                <div class="info-label">Potential Win</div>
-                <div class="info-value"><span id="potential-win">0</span> coins</div>
-            </div>
-        </div>
 
-        <!-- Coefficient Progress Bar -->
-        <div class="progress-bar-container">
-             <div id="coefficient-progress" class="progress-bar">
-                 <!-- Progress steps will be generated here by JS -->
+            <div class="game-info">
+                <div class="info-item">
+                    <div class="info-label">Current Multiplier</div>
+                    <div class="info-value multiplier"><span id="multiplier">1.00</span>x</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Potential Win</div>
+                    <div class="info-value"><span id="potential-win">0</span> coins</div>
+                </div>
+            </div>
+
+            <div class="progress-bar-container">
+                 <div id="coefficient-progress" class="progress-bar">
+                     <!-- Progress steps will be generated here by JS -->
+                 </div>
              </div>
-         </div>
+        </div>
 
-        <!-- Game Grid -->
-        <div id="game-grid" class="grid"></div>
+        <div class="game-area">
+            <div id="game-grid" class="grid"></div>
 
-        <!-- Game Status -->
-        <div id="game-status">Ready to play? Place your bet!</div>
+            <div id="game-status">Ready to play? Place your bet!</div>
+        </div>
 
-        <!-- Win Summary Modal -->
         <div id="win-modal" class="modal hidden">
              <div class="modal-content">
                  <h2>Congratulations!</h2>
@@ -452,7 +558,7 @@
                  <button id="close-modal-btn" class="button">Play Again</button>
              </div>
          </div>
-    </div>
+    </main>
 
     <script>
         let balance = 1000;
@@ -520,7 +626,7 @@
             return calculatedMultiplier; 
         }
 
-        const balanceDisplay = document.getElementById('balance');
+        const balanceDisplay = document.querySelector('.header-balance #balance');
         const betInput = document.getElementById('bet-amount');
         const minesInput = document.getElementById('mines-count');
         const startButton = document.getElementById('start-game');
@@ -575,6 +681,8 @@
                 step.innerHTML = `<span>${multiplierText}</span>${openText}`;
                 progressBar.appendChild(step);
             }
+            // Reset scroll to show first progress step
+            progressBar.parentElement.scrollLeft = 0;
         }
 
         // Function to update progress bar highlighting
@@ -612,6 +720,14 @@
         // ---- Initial setup ----
         // Generate progress bar on page load
         generateProgressBar(); 
+        // Ensure progress bar starts at the first item
+        const progressContainer = progressBar.parentElement;
+        progressContainer.scrollLeft = 0;
+        // Allow horizontal scrolling of progress bar with mouse wheel
+        progressContainer.addEventListener('wheel', function(e) {
+            e.preventDefault();
+            progressContainer.scrollBy({ left: e.deltaY, behavior: 'smooth' });
+        });
 
         // ---- Event Listeners ----
         // Update progress bar when mine count changes
@@ -698,15 +814,8 @@
             const steps = progressBar.querySelectorAll('.progress-step.highlighted');
             steps.forEach(step => step.classList.remove('highlighted'));
 
-            // Create grid
-            gameGrid.innerHTML = '';
-            for (let i = 0; i < gridSize; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = i;
-                cell.addEventListener('click', () => handleCellClick(i));
-                gameGrid.appendChild(cell);
-            }
+            // Reset the grid instead of creating it
+            resetGrid();
         });
 
         // Handle cell click
@@ -715,9 +824,11 @@
 
             const cell = document.querySelector(`.cell[data-index="${index}"]`);
             // Get cell position for particles
+            const container = document.querySelector('.container');
+            const containerRect = container.getBoundingClientRect();
             const rect = cell.getBoundingClientRect();
-            const centerX = rect.left + rect.width / 2;
-            const centerY = rect.top + rect.height / 2;
+            const centerX = rect.left + rect.width / 2 - containerRect.left;
+            const centerY = rect.top + rect.height / 2 - containerRect.top;
             
             if (mines.includes(index)) {
                 // Hit a mine
@@ -837,9 +948,12 @@
                         
                         // Only add particles to a few mines (to avoid overwhelming effects)
                         if (Math.random() > 0.6) { // 40% chance for extra particle effects
+                            // Get cell position for particles - relative to container
+                            const container = document.querySelector('.container');
+                            const containerRect = container.getBoundingClientRect();
                             const rect = cell.getBoundingClientRect();
-                            const centerX = rect.left + rect.width / 2;
-                            const centerY = rect.top + rect.height / 2;
+                            const centerX = rect.left + rect.width / 2 - containerRect.left;
+                            const centerY = rect.top + rect.height / 2 - containerRect.top;
                             // Smaller explosion for secondary mines
                             createParticles(centerX, centerY, Math.floor(Math.random() * 5) + 10, false);
                         }
@@ -851,11 +965,7 @@
         // Function to create particle explosion effect
         function createParticles(x, y, count, isSuccess) {
             const container = document.querySelector('.container');
-            const rect = container.getBoundingClientRect();
-            
-            // Calculate position more accurately relative to the container
-            const relativeX = x - rect.left;
-            const relativeY = y - rect.top;
+            // Note: Particle positions x,y are already calculated relative to this container
             
             for (let i = 0; i < count; i++) {
                 const particle = document.createElement('div');
@@ -866,10 +976,10 @@
                 particle.style.width = `${size}px`;
                 particle.style.height = `${size}px`;
                 
-                // Position particles precisely at the center of the cell
+                // Position particles precisely at the center of the cell, relative to the container
                 particle.style.position = 'absolute';
-                particle.style.left = `${relativeX}px`;
-                particle.style.top = `${relativeY}px`;
+                particle.style.left = `${x}px`;
+                particle.style.top = `${y}px`;
                 
                 // Random direction and distance
                 const angle = Math.random() * 2 * Math.PI; // Random angle in radians
@@ -894,6 +1004,36 @@
                 setTimeout(() => {
                     particle.remove();
                 }, parseFloat(duration) * 1000 + 50);
+            }
+        }
+
+        // Function to reset the grid
+        function resetGrid() {
+            const cells = gameGrid.querySelectorAll('.cell');
+            cells.forEach(cell => {
+                cell.classList.remove('opened', 'mine');
+                cell.textContent = '';
+            });
+        }
+
+        // Update the initialization to pre-create the grid
+        window.addEventListener('DOMContentLoaded', () => {
+            // Create initial empty grid
+            createEmptyGrid();
+            
+            // Hide game status
+            gameStatus.classList.add('hidden');
+        });
+
+        // Function to create an empty grid
+        function createEmptyGrid() {
+            gameGrid.innerHTML = '';
+            for (let i = 0; i < gridSize; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleCellClick(i));
+                gameGrid.appendChild(cell);
             }
         }
     </script>
