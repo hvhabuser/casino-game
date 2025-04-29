@@ -35,6 +35,18 @@
                     <label for="mines-count">Number of Mines (2-24)</label>
                     <input id="mines-count" type="number" min="2" max="24" value="3">
                 </div>
+                <button id="toggle-auto-play" class="button button-small">Автоплей ▼</button>
+                <div id="auto-play-filters" class="auto-play-menu">
+                    <div class="custom-select">
+                        <select id="filter-type">
+                            <option value="winnings">Выйгрыш</option>
+                            <option value="coefficient">Коэффициент</option>
+                            <option value="opened">Количество открытых</option>
+                        </select>
+                    </div>
+                    <input id="filter-value" type="number" placeholder="Введите значение">
+                    <button id="auto-play" class="button button-small">Запуск</button>
+                </div>
                 <button id="start-game" class="button">Start Game</button>
                 <button id="cashout" class="button hidden">Cash Out</button>
             </div>
@@ -73,4 +85,4 @@
 
     <script src="scripts.js"></script>
 </body>
-</html>
+</html>    

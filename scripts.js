@@ -62,6 +62,13 @@
     const modalMultiplier = document.getElementById('modal-multiplier');
     const modalWinnings = document.getElementById('modal-winnings');
     const closeModalBtn = document.getElementById('close-modal-btn');
+    const autoPlayButton = document.getElementById('auto-play');
+    let autoPlayInterval = null;
+    const filterType = document.getElementById('filter-type');
+    const filterValueInput = document.getElementById('filter-value');
+    const autoPlayFilters = document.getElementById('auto-play-filters');
+    const toggleAutoPlayButton = document.getElementById('toggle-auto-play'); // Add reference to the toggle button
+    const customSelect = document.querySelector('.custom-select'); // Reference for select styling
 
     function generateProgressBar() {
         const M = parseInt(minesInput.value) || 3;
@@ -190,6 +197,64 @@
     closeModalBtn.addEventListener('click', () => {
         hideWinModal();
         betInput.focus();
+        // Also ensure auto-play is closed when modal closes
+        if (autoPlayFilters.classList.contains('active')) {
+            toggleAutoPlayButton.click();
+        }
+    });
+
+    function stopAutoPlay() {
+        clearInterval(autoPlayInterval);
+        autoPlayInterval = null;
+        autoPlayButton.textContent = 'Запуск';
+    }
+
+    autoPlayButton.addEventListener('click', () => {
+        if (autoPlayInterval) {
+            clearInterval(autoPlayInterval);
+            autoPlayInterval = null;
+            autoPlayButton.textContent = 'Запуск';
+            return;
+        }
+        if (!gameActive) {
+            startButton.click();
+        }
+        autoPlayButton.textContent = 'Остановить';
+        autoPlayInterval = setInterval(() => {
+            const unopenedCells = Array.from(document.querySelectorAll('.cell')).filter(cell => !cell.querySelector('.card').classList.contains('opened'));
+            if (unopenedCells.length === 0 || !gameActive) {
+                clearInterval(autoPlayInterval);
+                autoPlayInterval = null;
+                autoPlayButton.textContent = 'Запуск';
+                return;
+            }
+            const randomCell = unopenedCells[Math.floor(Math.random() * unopenedCells.length)];
+            const index = parseInt(randomCell.dataset.index);
+            handleCellClick(index);
+            const threshold = parseFloat(filterValueInput.value);
+            if (!isNaN(threshold)) {
+                if ((filterType.value === 'winnings' && Math.ceil(betAmount * multiplier) >= threshold)
+                    || (filterType.value === 'coefficient' && multiplier >= threshold)
+                    || (filterType.value === 'opened' && openedCells >= threshold)) {
+                    stopAutoPlay();
+                }
+            }
+        }, 50);
+    });
+
+    // Event listener for the toggle button
+    toggleAutoPlayButton.addEventListener('click', () => {
+        const isActive = autoPlayFilters.classList.toggle('active');
+        toggleAutoPlayButton.textContent = isActive ? 'Автоплей ▲' : 'Автоплей ▼';
+    });
+
+    // Add event listeners for custom select styling
+    filterType.addEventListener('focus', () => {
+        customSelect.classList.add('open');
+    });
+
+    filterType.addEventListener('blur', () => {
+        customSelect.classList.remove('open');
     });
 
     function initializeMines() {
@@ -202,70 +267,59 @@
     }
 
     startButton.addEventListener('click', () => {
+        hideWinModal();
         // Очистка всех частиц перед началом новой игры
-        document.querySelectorAll('.particle').forEach(particle => particle.remove());
+        document.querySelectorAll('.particle').forEach(p => p.remove());
 
-        // Получение актуальных значений полей перед инициализацией
-        betAmount = parseInt(betInput.value) || 10;
-        minesCount = parseInt(minesInput.value) || 3;
-
-        if (isNaN(betAmount) || betAmount < 10) {
-            gameStatus.textContent = 'Minimum bet is 10 coins!';
-            gameStatus.className = 'status-lose';
-            return;
-        }
-        if (isNaN(minesCount) || minesCount < 2 || minesCount > 24) {
-            gameStatus.textContent = 'Mines must be between 2 and 24!';
-            gameStatus.className = 'status-lose';
-            return;
-        }
-        if (betAmount > balance) {
-            gameStatus.textContent = 'Insufficient balance!';
-            gameStatus.className = 'status-lose';
-            return;
-        }
         if (gameActive) return;
-        
-        try {
-            const testCoef = calculateMultiplier(1, minesCount, gridSize);
-            if (isNaN(testCoef) || !isFinite(testCoef) || testCoef <= 0) {
-                gameStatus.textContent = 'Invalid coefficient calculation. Try different mine count.';
-                gameStatus.className = 'status-lose';
-                return;
-            }
-        } catch (e) {
-            gameStatus.textContent = 'Error calculating coefficients. Try different mine count.';
-            gameStatus.className = 'status-lose';
+
+        betAmount = parseInt(betInput.value) || 10;
+        if (betAmount > balance) {
+            gameStatus.textContent = "Insufficient balance for this bet!";
+            gameStatus.classList.add('status-lose');
+            return;
+        }
+        if (betAmount < 10) {
+            gameStatus.textContent = "Minimum bet is 10 credits!";
+            gameStatus.classList.add('status-lose');
             return;
         }
 
-        hideWinModal(); 
-        initializeMines(); // Инициализация мин после валидации ввода
+        minesCount = parseInt(minesInput.value) || 3;
+        if (minesCount < 2 || minesCount > 24) {
+            gameStatus.textContent = "Number of mines must be between 2 and 24!";
+            gameStatus.classList.add('status-lose');
+            return;
+        }
 
         balance -= betAmount;
         balanceDisplay.textContent = balance;
-        gameActive = true;
+        
         openedCells = 0;
         multiplier = 1;
+        multiplierDisplay.textContent = "1.00";
+        potentialWinDisplay.textContent = betAmount;
         
-        betInput.disabled = true;
-        minesInput.disabled = true;
+        gameStatus.textContent = "Game started! Click on cells to reveal them.";
+        gameStatus.classList.remove('status-lose', 'status-win');
         
-        startButton.classList.add('hidden');
-        cashoutButton.disabled = true;
         cashoutButton.classList.remove('hidden');
-        cashoutButton.classList.remove('pulse');
-        gameStatus.textContent = 'Game started! Pick a cell.';
-        gameStatus.className = '';
-        multiplierDisplay.textContent = '1.00';
-        potentialWinDisplay.textContent = (betAmount * multiplier).toFixed(0);
-
+        startButton.disabled = true;
+        
+        initializeMines();
+        createEmptyGrid();
         generateProgressBar();
         
-        const steps = progressBar.querySelectorAll('.progress-step.highlighted');
-        steps.forEach(step => step.classList.remove('highlighted'));
-
+        gameActive = true;
+        
         resetGrid();
+        // Ensure auto-play section is closed on new game start
+        /*
+        if (autoPlayFilters.classList.contains('active')) {
+             autoPlayFilters.classList.remove('active');
+             toggleAutoPlayButton.textContent = 'Автоплей ▼';
+        }
+        */
     });
 
     function createExplosionParticles(x, y, count) {
@@ -325,6 +379,8 @@
             gameStatus.textContent = 'Game Over! You hit a mine.';
             gameStatus.className = 'status-lose';
             revealAllCards();
+            stopAutoPlay();
+            startButton.disabled = false;
         } else {
             card.classList.add('opened');
             const cardBack = card.querySelector('.card-back');
@@ -375,7 +431,7 @@
         
         betInput.disabled = false;
         minesInput.disabled = false;
-        
+        startButton.disabled = false;
         startButton.classList.remove('hidden');
         cashoutButton.disabled = true;
         cashoutButton.classList.add('hidden');
@@ -455,6 +511,8 @@
     window.addEventListener('DOMContentLoaded', () => {
         createEmptyGrid();
         gameStatus.classList.add('hidden');
+        // Remove this line, filters should start hidden by CSS
+        // autoPlayFilters.classList.remove('hidden');
     });
 
     function createEmptyGrid() {
@@ -473,4 +531,8 @@
             gameGrid.appendChild(cell);
         }
     }
+
+    // Add this line back to ensure filters are hidden initially by JS logic too
+    // Although CSS handles the initial state, this acts as a fallback
+    // autoPlayFilters.classList.add('hidden'); // Keep this commented or remove, CSS handles initial state better
 })();
